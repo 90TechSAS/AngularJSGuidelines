@@ -23,6 +23,8 @@ It's done, from now we'll write in French, again sorry :)
  1. [Objectifs du guide](#objectifs-du-guide)
  2. [Dépendances développeurs tiers](#dependances-developpeurs-tiers)
  3. [Arborescence des fichiers](#arborescence-des-fichiers)
+ 4. [Modules](#modules)
+ 5. [Routes](#routes)
 
 
 ##Objectifs du guide
@@ -86,11 +88,10 @@ Garder les fichiers organisés est une tâche prioritaire ! Un fichier mal rang�
 │               │
 │               ├───controllers
 │               │       invoices-list.html
-│               │       invoices-list.js
+│               │       invoices-list.controller.js
 │               │
 │               ├───directives
 │               │   └───invoice-sum
-│               │           .DS_Store
 │               │           invoice-sum.html
 │               │           invoice-sum.js
 │               │           invoice-sum.less
@@ -139,12 +140,12 @@ angular
 ```javascript
 /* A appliquer ! */
 
-// routes/invoices/controllers/invoices.js
+// routes/invoices/list/controllers/invoices.controller.js
 angular
     .module('app')
-    .controller('InvoicesController' , InvoicesController);
+    .controller('InvoicesListController' , InvoicesListController);
 
-function InvoicesController() {
+function InvoicesListController() {
 	...
 }
 ```
@@ -162,3 +163,73 @@ function InvoiceModel() {
 ```
 
 [Retour au sommaire](#sommaire)
+
+##Modules
+
+En tout premier lieu, ne surtout pas déclarer les modules dans des variables. JAMAIS. Préférez utiliser la notation suivante :
+
+```javascript
+angular
+	.module('app')
+	.controller(...);
+
+angular
+	.module('app')
+	.service(...);
+```
+
+Ceci est dans la continuité de ce que nous avons vu juste avant. Le fait de séparer chaque responsabilité en un fichier permet de "modulariser" vos composants.
+
+####IIFE
+
+Derrière cet acrynonyme barbare se cache en réalité une fonctionnalité bien pratique. Ce système sert en finalité pour la portée de variables. Toute variable déclarée dans une fonction anonyme auto-appelante ne reste disponible que cette fonction. C'est un peu un namespace sans nom finalement (**attention nous raccourcissons volontairement l'explication**). Voici donc un IIFE pour que ça soit plus parlant :
+
+```javascript
+(function() {
+...
+})();
+```
+
+L'intérêt étant d'isoler les variables du scope global et donc de ne plus être embêté avec des histoires de variables en doublon notamment lors de la minification et de l'export vers un environnement de production. Exemple simple :
+
+```javascript
+// routes/invoices/list/controllers/invoices.controller.js
+(function() {
+
+	// Active le mode strict dans la fonction courante
+	'use strict';
+
+	angular
+		.module('app')
+		.controller(InvoicesListController);	
+
+	function InvoicesListController() {
+		...
+	}
+	
+})();
+```
+
+####Nommage
+
+Il faut d'abord éviter les problèmes liés aux collisions de nom. Nous avons choisi d'utiliser le "." pour séparer nos différents modules, ainsi voilà comment définir vos modules :
+
+```javascript
+angular
+	.module('app', [
+		'ngAnimate',
+		'ngRoute',
+
+		'app.invoices',
+		'app.common'
+	]);
+```
+L'idée étant d'imbriquer les modules comme autant de dépendances, ainsi en cas de manquement d'un fichier, vous serez immédiatement averti.
+
+Comme vu précédemment, une fois vos modules définis, vous devez y accéder pour trier chacun de vos composants dans les modules correspondants.
+
+[Retour au sommaire](#sommaire)
+
+##Routes
+
+Une route correspond à une page, donc théoriquement à un affichage différent. Il y a d'autres composants, directives qui seront alors à l'écran ...
