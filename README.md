@@ -53,7 +53,7 @@ Garder les fichiers organisés est une tâche prioritaire ! Un fichier mal rang�
 
 ### Structure des dossiers
 
-````
+```
 .
 │   
 │   index.html
@@ -100,4 +100,65 @@ Garder les fichiers organisés est une tâche prioritaire ! Un fichier mal rang�
     ├───fonts
     ├───images
     └───less
-````
+```
+
+[Retour au sommaire](#sommaire)
+
+##Principe de responsabilité unique
+
+C'est une pratique courante dans le monde du développement informatique. En appliquant ce principe, vous éviterez ainsi des défauts de conceptions et augmenterez significativement la lisibilité de votre code (cf. **Objectifs initiaux**).
+
+Ce principe reste simple dans son idée de départ : une classe doit gérer une responsabilité (soit un ensemble de fonctionnalités qui vont dans le même sens). A appliquer dans notre cas, un composant (factory, controller, directive) est défini par fichier et **seulement un**. Voici un contre-exemple :
+
+```javascript
+/* Ne pas reproduire ! */
+angular
+    .module('app', ['ngAnimate'])
+    .controller('InvoicesController' , InvoicesController)
+    .service('InvoiceModel' , InvoiceModel);
+
+function InvoicesController() {
+	...
+}
+
+function InvoiceModel() {
+	...
+}
+```
+
+Pensez plutôt à découper en plusieurs fichiers qui, chacun, aura son rôle, sa responsabilité :
+
+```javascript
+/* A appliquer ! */
+
+// app.module.js
+angular
+    .module('app', ['ngAnimate']);
+```
+
+```javascript
+/* A appliquer ! */
+
+// routes/invoices/controllers/invoices.js
+angular
+    .module('app')
+    .controller('InvoicesController' , InvoicesController);
+
+function InvoicesController() {
+	...
+}
+```
+
+```javascript
+/* A appliquer ! */
+angular
+    .module('app')
+    .service('InvoiceModel' , InvoiceModel);
+
+// models/invoice.js
+function InvoiceModel() {
+	...
+}
+```
+
+[Retour au sommaire](#sommaire)
