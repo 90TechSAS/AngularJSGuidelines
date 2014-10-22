@@ -24,7 +24,9 @@ It's done, from now we'll write in French, again sorry :)
  2. [Dépendances développeurs tiers](#dependances-developpeurs-tiers)
  3. [Arborescence des fichiers](#arborescence-des-fichiers)
  4. [Modules](#modules)
- 5. [Routes](#routes)
+ 5. [Gestion des dépendances](#gestion-des-dependances)
+ 6. [Controllers](#controllers)
+ 7. [Routes](#routes)
 
 
 ##Objectifs du guide
@@ -44,8 +46,6 @@ En mettant en place ce guide, l'objectif global est de permettre une certaine un
 - [Lodash](https://lodash.com/) - Cette petite librairie est d'une simplicité et permet d'user de magie un peu partout où cela est nécessaire. La concaténation d'objets JS est très simplifié grâce à cette librairie, elle est indispensable. Quand vous avez un travail à faire sur une collection ou un objet, regardez directement si une fonction n'existe pas pour vous sauver la vie.
 
 - [AngularUI Router](https://github.com/angular-ui/ui-router) - Angular propose de base un router via son module ngRoute mais il n'est pas aussi permissif que AngularUI Router notamment à travers son système de vues imbriquées. Au niveau de la configuration, `$stateProvider` est bien plus pratique pour une application simple-page.
-
-- [Restangular](https://github.com/mgonto/restangular) - Restangular est une librairie qui remplace ngResources. Il faut bâtir sur cette solution pour les données récupérées depuis nos différentes API.
 
 - [moment.js](http://momentjs.com/) - La librairie pour bricoler avec les temps, les dates et heures. Beaucoup plus simple et complète que n'importe quelle autre librairie de gestion du temps en Javascript.
 
@@ -230,6 +230,179 @@ Comme vu précédemment, une fois vos modules définis, vous devez y accéder po
 
 [Retour au sommaire](#sommaire)
 
+##Gestion des dépendances
+
+Dans un but de minifier les fichiers par la suite, nous avons besoin de gérer correctement toutes les dépendances et imports. Il y a un sens d'écriture des différents modules à respecter : en premier lieu, les dépendances native d'Angular, ensuite les dépendances tierces et finir avec nos composants.
+
+Pour chacun des composants, l'import se fait de la manière suivante :
+
+```javascript
+InvoicesListController.$inject = ['$q', '$timeout', 'Socket', 'InvoicesService'];
+
+// $q et $timeout 	-> Angular
+// Socket 			-> lib Socket.io
+// InvoicesService 	-> Service qu'on a précédemment créé
+function InvoicesListController($q, $timeout, Socket, InvoicesService) {
+	...
+}
+```
+
+[Retour au sommaire](#sommaire)
+
+##Controllers
+
+####"Controller As"
+L'un des premiers points extrêmement important à aborder, la syntaxe "**controllerAs**" permet d'orienter le code du "controller" à la manière d'une Classe classique via un réel Constructeur. Du coup, nous pouvons utiliser ```this``` dans les "controllers".
+
+Elle permet également de se passer du ```$scope``` qui reste finalement un anti-pattern et de l'accès aux différents "controllers" parents dans les vues à l'aide du "." des objets Javascript. Exemple : ```{{list.count}}```.
+
+####Système View-model
+L'accès au ```this``` dans le "controller" permet d'orienter le développement objet. Cependant la limitation Javascript avec la variable ```this``` nous bride vis-à-vis de l'utilisation dans des contextes particulier (méthode ou callback). Pour contrer cela, il suffit simplement d'instancier l'objet courant dans une variable et d'éviter ```.bind()``` d'Angular :
+```javascript
+var self = this;
+```
+
+####Visibilité des méthodes et attributs
+A travers le système mis en place, nous avons orienté les "controllers" vers une démarche Orienté Objet à travers leur constructeur. Du coup, nous allons pouvoir utiliser le principe de visibilité des variables, attributs, méthodes et fonctions. Voyons rapidement comment ça fonctionne dans les controllers :
+
+```javascript
+function InvoicesListController(InvoicesService) {
+
+	var self = this;
+	
+	var invoices = [
+		{...},
+		{...},
+		{...},
+		...
+	];
+
+	function sendInvoiceTotal(invoice) {
+		InvoicesService.create(invoice)
+			.then(success, error);
+	}
+
+	function success() {
+		console.log('success');
+	}
+	
+	function error() {
+		console.log('error');
+	}
+
+	// On étend alors notre objet pour la visibilité 
+	_.extends(self, {
+		// Attributs publiques
+		invoices: invoices
+		
+		// Méthodes publiques
+		sendInvoiceTotal: sendInvoiceTotal
+	});
+
+}
+```
+
+####Délégation de la logique business aux services
+
+A écrire...
+
+####Pas de manipulation du DOM
+
+A écrire...
+
+[Retour au sommaire](#sommaire)
+
 ##Routes
 
-Une route correspond à une page, donc théoriquement à un affichage différent. Il y a d'autres composants, directives qui seront alors à l'écran ...
+Une route correspond à une page, donc théoriquement à un affichage différent. Il y a d'autres composants, directives qui seront alors à l'écran. Il faut alors, par route, créer un fichier de routing qui se chargera de configurer correctement le ```$stateProvider``` d'AngularUI Router. Voici un exemple :
+
+```javascript
+
+// routes/invoices/list/invoices-list.route.js
+(function () {
+
+    'use strict';
+
+    angular
+	    .module('app.invoices.list')
+        .config([
+            '$stateProvider',
+            
+            function($stateProvider) {
+                $stateProvider
+                    .state('invoices.list', {
+                        url: '/invoices/list',
+                        resolve: {
+                            invoices: InvoicesPrepareService
+                        },
+                        views: {
+                            'main': {
+                                templateUrl: ...
+                                controller: 'InvoicesListController',
+                                controllerAs: 'list'
+                            },
+                            'sidebar': {
+                                templateUrl: ...
+                                controller: 'InvoicesSidebarController',
+                                controllerAs: 'sidebar'
+                            }
+                        }
+                    })
+                    
+                    .state(...) // On chain tranquillement les routes qui peuvent éventuellement en découler
+                    
+                    .state(...);
+            }
+        ]);
+
+
+	// #############
+	// # Resolvers #
+	// #############
+
+	InvoicesPrepareService.$inject = ['InvoicesService'];
+
+    function InvoicesPrepareService(InvoicesService) {
+        return InvoicesService.getAllFromLastMonth(); // On retour une promise
+    }
+})();
+```
+Nous allons redéfinir et expliquer plusieurs points.
+
+####State & Routing
+Le "State" se découpe à l'image des modules (utilisation des "." comme séparateur) puisqu'ils peuvent être imbriqués et fonctionner de manière abstraite. La documentation d'AngularUI Router est assez bien faite quant à l'utilisation des states et des routes ([voir plus de détails](https://github.com/angular-ui/ui-router/wiki/URL-Routing)).
+
+####Vues imbriquées
+La clé ```views``` contient finalement la liste des informations des différentes vues qui seront affichées sur la page en question.
+
+**NB** : Il faut que l'ensemble des vues définies sur la page soit présent sur votre configuration de routes.
+
+####"Controller As"
+Comme décrit auparavant, on utilise ici la nomenclature ```controllerAs```. Encore une fois, choisissez intelligemment le nom de vos "controllers".
+
+####Resolver & Controller
+Le "resolver" est exécuté avant l'instanciation du "controller". Il peut y avoir plusieurs "resolvers" d'affilée et pour la plupart sont des promises afin de gérer le côté asynchrone des chargements du pré-affichage. Les résultats des dits "resolvers" sont ensuite passés comme paramètres de votre "controller".
+
+```javascript
+angular
+	.module('app.invoices.list')
+	.controller('InvoicesListController', InvoicesListController);
+
+InvoicesListController.$inject = ['invoices'];
+
+function InvoicesListController(invoices) { // Le résultat du resolver est en paramètre du constructeur
+	
+	var self = this;
+
+	_.extend(self, {
+		// Attributs publiques 
+		invoices: invoices
+		
+		// Méthodes publiques
+		...
+	});
+	
+}
+```
+
+[Retour au sommaire](#sommaire)
