@@ -23,6 +23,7 @@ It's done, from now we'll write in French, again sorry :)
  1. [Objectifs du guide](#objectifs-du-guide)
  2. [Dépendances développeurs tiers](#dependances-developpeurs-tiers)
  3. [Arborescence des fichiers](#arborescence-des-fichiers)
+ 4. [Principe de responsabilité unique](#principe-de-responsabilite-unique)
  4. [Modules](#modules)
  5. [Gestion des dépendances](#gestion-des-dependances)
  6. [Controllers](#controllers)
@@ -251,10 +252,30 @@ function InvoicesListController($q, $timeout, Socket, InvoicesService) {
 
 ##Controllers
 
+####Nommage
+
+Les noms de "controllers", à l'instar d'autres composants, devront être écrits en UpperCamelCase et finir par "Controller" à la fin, voici quelques exemples simples :
+
+```javascript
+InvoicesListController
+UserCreationController
+EventUpdateController
+```
+Nommez vos composants Angular de la même manière que vos constructeurs (voir ci-après).
+
 ####"Controller As"
 L'un des premiers points extrêmement important à aborder, la syntaxe "**controllerAs**" permet d'orienter le code du "controller" à la manière d'une Classe classique via un réel Constructeur. Du coup, nous pouvons utiliser ```this``` dans les "controllers".
 
 Elle permet également de se passer du ```$scope``` qui reste finalement un anti-pattern et de l'accès aux différents "controllers" parents dans les vues à l'aide du "." des objets Javascript. Exemple : ```{{list.count}}```.
+
+#### Pas d'instanciation de controller dans les vues
+
+Pour retrouver et utiliser efficacement les controllers, pensez à instancier uniquement les "controllers" dans les routes et directives uniquement (voir ci-après).
+
+```html
+<!-- Ne pas reproduire -->
+<div ng-controller="InvoicesListController as list">...</div>
+```
 
 ####Système View-model
 L'accès au ```this``` dans le "controller" permet d'orienter le développement objet. Cependant la limitation Javascript avec la variable ```this``` nous bride vis-à-vis de l'utilisation dans des contextes particulier (méthode ou callback). Pour contrer cela, il suffit simplement d'instancier l'objet courant dans une variable et d'éviter ```.bind()``` d'Angular :
@@ -304,11 +325,28 @@ function InvoicesListController(InvoicesService) {
 
 ####Délégation de la logique business aux services
 
-A écrire...
+Attaquons-nous désormais à la logique métier et données (dite business) de votre "controller". Si vous avez besoin d'utiliser des données qui sont amenées à évoluer etc, n'écrivez rien en rapport avec celle-ci dans vos "controllers" !
+
+L'idée est de séparer vos données et méthodes liées à celles-ci dans un service de manière à ce que plusieurs "controllers" puissent réutiliser le service.
+
+A conforter que cela permet de garder le "controller" propre et chaque composant possède du coup une [responsabilité unique](#principe-de-responsabilite-unique).
+
+
+####Logique graphique
+
+A contrario, il ne faut pas tout mettre dans les services non plus. Tout ce qui touche au "controller", c'est-à-dire que tous les attributs et méthodes que vous allez utiliser dans votre vue est indispensable et indissociable de votre "controller".
+
+Evitez au maximum les méthodes abstraites, il se peut cependant que certaines de vos méthodes ou attributs aient besoin d'être privées, pensez alors à ce que nous avons dit sur la [visibilité des attributs et méthodes](#visibilite-des-methodes-et-attributs).
 
 ####Pas de manipulation du DOM
 
-A écrire...
+Voici une règle simple. Vous ne devez, sous aucun prétexte, accéder au DOM dans votre "controller" à l'aide de jqLite ou autre ! Si vous pensez devoir le faire, c'est que vous avez besoin d'une **directive**. 
+
+**Aucune manipulation du DOM dans un "controller" est l'une des règles d'or !**
+
+####Responsabilité
+
+Il faut garder vos "controllers" dédiés uniquement à une vue et essayer de ne pas les réutiliser dans d'autres vues. Si vous en ressentez le besoin, décalez votre logique dans une "factory" et laissez le "controller" simple, propre et uniquement dédié à ce qu'il doit faire : gérer sa propre vue.
 
 [Retour au sommaire](#sommaire)
 
