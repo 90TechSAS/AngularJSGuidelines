@@ -24,10 +24,12 @@ It's done, from now we'll write in French, again sorry :)
  2. [Dépendances développeurs tiers](#dependances-developpeurs-tiers)
  3. [Arborescence des fichiers](#arborescence-des-fichiers)
  4. [Principe de responsabilité unique](#principe-de-responsabilite-unique)
- 4. [Modules](#modules)
- 5. [Gestion des dépendances](#gestion-des-dependances)
- 6. [Controllers](#controllers)
- 7. [Routes](#routes)
+ 5. [Modules](#modules)
+ 6. [Gestion des dépendances](#gestion-des-dependances)
+ 7. [Controllers](#controllers)
+ 8. [Directives](#directives)
+ 9. [Services, Factories et Models](#services-factories-et-models)
+ 10. [Routes](#routes)
 
 
 ##Objectifs du guide
@@ -53,8 +55,6 @@ En mettant en place ce guide, l'objectif global est de permettre une certaine un
 ##Arborescence des fichiers
 
 Garder les fichiers organisés est une tâche prioritaire ! Un fichier mal rangé est une grosse perte de temps. Prenez donc la peine de correctement **nommer** et **ranger** fichiers et dossiers.
-
-### Structure des dossiers
 
 ```
 .
@@ -323,7 +323,7 @@ function InvoicesListController(InvoicesService) {
 }
 ```
 
-####Délégation de la logique business aux services
+####Délégation de la logique métier aux services
 
 Attaquons-nous désormais à la logique métier et données (dite business) de votre "controller". Si vous avez besoin d'utiliser des données qui sont amenées à évoluer etc, n'écrivez rien en rapport avec celle-ci dans vos "controllers" !
 
@@ -347,6 +347,113 @@ Voici une règle simple. Vous ne devez, sous aucun prétexte, accéder au DOM da
 ####Responsabilité
 
 Il faut garder vos "controllers" dédiés uniquement à une vue et essayer de ne pas les réutiliser dans d'autres vues. Si vous en ressentez le besoin, décalez votre logique dans une "factory" et laissez le "controller" simple, propre et uniquement dédié à ce qu'il doit faire : gérer sa propre vue.
+
+[Retour au sommaire](#sommaire)
+
+##Directives
+
+...
+
+[Retour au sommaire](#sommaire)
+
+##Services, Factories et Models
+
+La distinction entre "factory", "service" et "provider" est très petite. Sans rentrer dans le détails, finalement chacune de ces formes est un Service (cf. documentation Angular : service > new factory > new provider). Nous allons nous permettre de laisser tomber le "provider" pour se concentrer uniquement sur les deux premières formes.
+
+Les services en général contiennent l'ensemble de la logique métier et données.
+
+####Utilisation des services
+
+Les services seront principalement dédiés et amenés à discuter avec les "controllers", dans un esprit de responsabilité unique encore une fois.
+
+Les services se trouvent dans chacun des sous-dossiers de routes quand ils concernent les "controllers" courants. Pour des "services" plus globaux et réutilisables sur plusieurs routes, pensez alors au dossier ```common/services/```.
+
+Gardez à l'esprit l'histoire des composants et des modules, n'utilisez pas un service qui n'est pas dans son "range".
+
+####Utilisation des "factories"
+
+Les "factories" peuvent être "instanciées" (attention, pour ce que nous venons de dire, nous pouvons nous faire lyncher). En soit une factory est également un "singleton" mais elle peut retourner un constructeur (ou plusieurs d'ailleurs) qui lui sera instanciable !
+
+C'est pourquoi, nous utilisons les "factories" comme des "models". Nous essayons de nous rapprocher du système de "beans" sur Java. Ces "beans" sont créés et contiennent les données auparavant, nous ne traitons donc jamais les données en brut comme elles arrivent dans un "controller" ou dans une vue, mais bien au niveau des "services" et "models".
+
+####Nommage et écriture
+
+#####Service
+
+Dans un premier temps, regardons ensemble, à travers un exemple, à quoi pourrait ressembler un service pour gérer les factures sur notre page qui les liste simplement.
+
+```javascript
+
+// routes/invoices/list/services/invoices-list.service.js
+angular
+	.module('app.invoices.list')
+	.service('InvoicesListService', InvoicesListService);
+
+function InvoicesListService() {
+
+	var self = this;
+
+	function getLastMonthInvoices() {
+		...
+	}
+
+	_.extends(self, {
+		// Attributs publiques
+		...
+		// Méthodes publiques
+		getLastMonthInvoices: getLastMonthInvoices
+	});
+}
+```
+Plusieurs points découlent de cet exemple. Premièrement, le nom est également en UpperCamelCase et se finit par "Service". La plupart du temps, il aura le même nom que le "controller" auquel il est relié (sauf cas où plusieurs "controllers" sont dans le même module et ont besoin des mêmes méthodes métiers).
+
+Il utilise également le même principe que le controller pour la visibilité de ses attributs et méthodes à travers ```_.extends``` que propose **lodash**.
+
+#####Model
+
+Voyons ensuite comment se comporte un "model" :
+
+```javascript
+
+// models/invoice.js
+angular
+	.module('app.models.invoice')
+	.factory('InvoiceService', InvoiceService);
+
+function InvoiceService() {
+
+	function Invoice(options) {
+
+		this.client = null;
+		this.amount = 0;
+		this.products = [];
+		
+		_.extends(this, options);
+	}
+
+	Invoice.prototype = {
+
+		validate: function() {
+			...
+		}
+
+	};
+
+	return Invoice;
+}
+```
+
+Le "model" n'est pas très compliqué en soit. C'est une "factory" qui renvoie un constructeur correspondant à un jeu de données. Via ce système, l'objet en question peut contenir des méthodes prototypes qui pourront aider à valider les données par exemple.
+
+A noter également que le constructeur prend un objet en paramètre qui correspondrait à une liste de propriétés qui lui serait simplement passée en paramètre. Cela évite dans certains cas, d'avoir des listes de ```null``` lors de l'instanciation de certains objets jusqu'à arriver au paramètre que l'on connait. Le but étant d'éviter ceci : ```new Invoice(123, null, null, null, 1023.42, 'DUTRONC', null, null, true);```.
+
+####Contraites et utilités
+
+Après avoir déjà expliqué comment fonctionnent les "factories" ("models") et les "services", nous allons juste simplifier ce qui a été dit :
+
+ - Les "services" s'utilisent dans les "controllers" à travers de simple méthodes.
+ - Les "models" s'utilisent dans les "services" pour manipuler les données.
+ - Les "services" s'occupent de gérer l'enregistrement, la récupération et le stockage des données, il y a donc une abstraction de la forme des données pour chaque "model" quelque soit le type de récupération (socket, cache, storage, API json, API xml, etc.).
 
 [Retour au sommaire](#sommaire)
 
@@ -387,7 +494,8 @@ Une route correspond à une page, donc théoriquement à un affichage différent
                         }
                     })
                     
-                    .state(...) // On chain tranquillement les routes qui peuvent éventuellement en découler
+                    // On chain les routes qui peuvent en découler
+                    .state(...)
                     
                     .state(...);
             }
@@ -401,7 +509,8 @@ Une route correspond à une page, donc théoriquement à un affichage différent
 	InvoicesPrepareService.$inject = ['InvoicesService'];
 
     function InvoicesPrepareService(InvoicesService) {
-        return InvoicesService.getAllFromLastMonth(); // On retour une promise
+	    // On retourne une promise
+        return InvoicesService.getAllFromLastMonth();
     }
 })();
 ```
@@ -428,7 +537,8 @@ angular
 
 InvoicesListController.$inject = ['invoices'];
 
-function InvoicesListController(invoices) { // Le résultat du resolver est en paramètre du constructeur
+// Le résultat du resolver est en paramètre du constructeur
+function InvoicesListController(invoices) { 
 	
 	var self = this;
 
