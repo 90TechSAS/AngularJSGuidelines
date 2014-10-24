@@ -30,6 +30,13 @@ It's done, from now we'll write in French, again sorry :)
  8. [Directives](#directives)
  9. [Services, Factories et Models](#services-factories-et-models)
  10. [Routes](#routes)
+ 11. [Encapsuleurs natifs](#encapsuleurs-natifs)
+ 12. Exceptions
+ 13. Constantes
+ 13. Commentaires
+ 14. JSHint
+ 15. Gulp et déploiement
+ 16. Contributions
 
 
 ##Objectifs du guide
@@ -352,7 +359,71 @@ Il faut garder vos "controllers" dédiés uniquement à une vue et essayer de ne
 
 ##Directives
 
-...
+Les directives sont là pour les modifications avancées du DOM. Si vous avez besoin de faire des modifications simples etc, pensez en priorité au ```ngHide```et ```ngShow```que propose Angular ou à des animations CSS. Les modifications du DOM sont difficiles à tester, autant en faire le moins possible.
+
+####Responsabilité unique
+
+Comme tout autre composant, les "directives" ne doivent remplir qu'une mission et une seule. Elles sont donc censées être écrite dans un fichier séparé à chaque fois. Cependant si un controller est nécessaire, il est possible de le faire dans ce même fichier.
+
+####Restriction des déclarations
+Par simplicité, nous n'utiliseront pas l'instanciation de "directives" via la possibilité offerte par les classes. En d'autres termes, utilisez uniquement ```restrict: 'A'```, ```restrict: 'E'``` ou```restrict: 'AE'``` au maximum.
+
+Du coup, nous les utilisons uniquement dans les vues de cette manière :
+```html
+<my-directive></my-directive>
+
+<div my-directive></div>
+```
+
+####Template
+
+Il faut privilégier les templates externes, exportez vos fichiers html en dehors des fichiers directives.
+
+Si jamais vous jugez que la directive est vraiment petite, utilisez la forme qui suit :
+
+```javascript
+function myDirective() {
+
+	return {
+		template: [
+			'<div>',
+				'<p>...</p>',
+			'</div>'
+		].join();
+	};
+
+}
+```
+
+####Nommage & Ecriture
+
+N'utilisez jamais le préfixe ```ng-*```,  préférez ```zl-*```. A savoir également que le nom doit être écrit simplement en ```camelCase```. Voici un exemple complet :
+
+```javascript
+angular
+	.module('app')
+	.directive('zlDragUpload', DragUploadDirective);
+
+function DragUploadController() {
+	...
+}
+
+function DragUploadDirective() {
+
+	return {
+		restrict: 'E',
+		templateUrl: 'common/directives/drag-upload.directive.js',
+		controller: DragUploadController,
+		controllerAs: 'drag',
+		link: link
+	};
+	
+	function link(scope, element, attributes, controller) {
+		// Faire les manipulations du DOM ici uniquement !
+	}
+	
+}
+```
 
 [Retour au sommaire](#sommaire)
 
@@ -552,5 +623,55 @@ function InvoicesListController(invoices) {
 	
 }
 ```
+
+[Retour au sommaire](#sommaire)
+
+
+##Encapsuleurs natifs
+
+Angular propose une série d'helpers, il faut absolument les privilégier :
+
+ - **$timeout** au lieu de setTimeout
+ - **$interval** au lieu de setInterval
+ - **$window** au lieu de window
+ - **$document** au lieu de document
+ - **$http** au lieu de $.ajax
+ - **$q (promises)** au lieu des callbacks
+
+[Retour au sommaire](#sommaire)
+
+##Exceptions
+
+...
+
+[Retour au sommaire](#sommaire)
+
+##Constantes
+
+...
+
+[Retour au sommaire](#sommaire)
+
+##Commentaires
+
+...
+
+[Retour au sommaire](#sommaire)
+
+##JSHint
+
+...
+
+[Retour au sommaire](#sommaire)
+
+##Gulp et déploiement
+
+...
+
+[Retour au sommaire](#sommaire)
+
+##Contributions
+
+...
 
 [Retour au sommaire](#sommaire)
