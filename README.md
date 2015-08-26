@@ -1,6 +1,6 @@
-#AngularJS Guidelines - ZenLabs
+#AngularJS Guidelines - 90Tech
 
-These guidelines are written primarily for the Zenlabs team but the developers wanted to share with you how they work.
+These guidelines are written primarily for the 90Tech team but the developers wanted to share with you how they work.
 
 Don't take anything that's written here to face value, take a global view and be smart vis-à-vis your development issues.
 
