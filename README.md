@@ -1,16 +1,12 @@
 #AngularJS Guidelines - 90Tech
 
-These guidelines are written primarily for the 90Tech team but the developers wanted to share with you how they work.
-
-Don't take anything that's written here to face value, take a global view and be smart vis-à-vis your development issues.
-
-We don't provide a unique solution, just enough to put some order in your project.
+These guidelines were written primarily for the 90Tech team but the developers wanted to share with you how they work. They are not meant to be followed by the book.
 
 We're a french team, so in a first phase, we write these guidelines in French (but we'll translate these later). Sorry about that :)
 
 ##Credits and Thanks
 
-We read a lot of documents and style guidelines from the community but we really want to thank to [@john_papa](https://twitter.com/john_papa) for his awesome work in which we referred to. In same time, we want share with you some other guys who make a great great work for helping people to be better in angular coding approach :
+We read a lot of documents and style guidelines from the community but we really want to thank to [@john_papa](https://twitter.com/john_papa) for his awesome work in which we referred to. In same time, we want share with you some other guys who make a great work for helping people to be better in angular coding approach :
 
  - [@toddmotto](https://twitter.com/toddmotto)
  - [@GoCardLess](https://twitter.com/GoCardless)
