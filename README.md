@@ -1,10 +1,10 @@
-#AngularJS Guidelines - 90Tech
+# AngularJS Guidelines - 90Tech
 
 These guidelines were written primarily for the 90Tech team but the developers wanted to share with you how they work. They are not meant to be followed by the book.
 
 We're a french team, so in a first phase, we write these guidelines in French (but we'll translate these later). Sorry about that :)
 
-##Credits and Thanks
+## Credits and Thanks
 
 We read a lot of documents and style guidelines from the community but we really want to thank to [@john_papa](https://twitter.com/john_papa) for his awesome work in which we referred to. In same time, we want share with you some other guys who make a great work for helping people to be better in angular coding approach :
 
@@ -14,7 +14,7 @@ We read a lot of documents and style guidelines from the community but we really
 
 It's done, from now we'll write in French, again sorry :)
 
-##Sommaire
+## Sommaire
 
  1. [Objectifs du guide](#objectifs-du-guide)
  2. [Dépendances développeurs tiers](#dependances-developpeurs-tiers)
@@ -35,7 +35,7 @@ It's done, from now we'll write in French, again sorry :)
  16. Contributions
 
 
-##Objectifs du guide
+## Objectifs du guide
 
 En mettant en place ce guide, l'objectif global est de permettre une certaine unité dans le développement des applications front-end. Pour cela, certains sous-objectifs sont à considérer :
 
@@ -47,7 +47,7 @@ En mettant en place ce guide, l'objectif global est de permettre une certaine un
 6. Penser à s'informer sur l'existence de composants déjà présents et reconnus.
 7. Savoir se remettre en question vis-à-vis de ce guide.
 
-##Dépendances développeurs tiers
+## Dépendances développeurs tiers
 
 - [Lodash](https://lodash.com/) - Cette petite librairie est d'une simplicité et permet d'user de magie un peu partout où cela est nécessaire. La concaténation d'objets JS est très simplifié grâce à cette librairie, elle est indispensable. Quand vous avez un travail à faire sur une collection ou un objet, regardez directement si une fonction n'existe pas pour vous sauver la vie.
 
@@ -109,7 +109,7 @@ Garder les fichiers organisés est une tâche prioritaire ! Un fichier mal rang�
 
 [Retour au sommaire](#sommaire)
 
-##Principe de responsabilité unique
+## Principe de responsabilité unique
 
 C'est une pratique courante dans le monde du développement informatique. En appliquant ce principe, vous éviterez ainsi des défauts de conceptions et augmenterez significativement la lisibilité de votre code (cf. **Objectifs initiaux**).
 
@@ -168,7 +168,7 @@ function InvoiceModel() {
 
 [Retour au sommaire](#sommaire)
 
-##Modules
+## Modules
 
 En tout premier lieu, ne surtout pas déclarer les modules dans des variables. JAMAIS. Préférez utiliser la notation suivante :
 
@@ -184,7 +184,7 @@ angular
 
 Ceci est dans la continuité de ce que nous avons vu juste avant. Le fait de séparer chaque responsabilité en un fichier permet de "modulariser" vos composants.
 
-####IIFE
+#### IIFE
 
 Derrière cet acrynonyme barbare se cache en réalité une fonctionnalité bien pratique. Ce système sert en finalité pour la portée de variables. Toute variable déclarée dans une fonction anonyme auto-appelante ne reste disponible que cette fonction. C'est un peu un namespace sans nom finalement (**attention nous raccourcissons volontairement l'explication**). Voici donc un IIFE pour que ça soit plus parlant :
 
@@ -214,7 +214,7 @@ L'intérêt étant d'isoler les variables du scope global et donc de ne plus êt
 })();
 ```
 
-####Nommage
+#### Nommage
 
 Il faut d'abord éviter les problèmes liés aux collisions de nom. Nous avons choisi d'utiliser le "." pour séparer nos différents modules, ainsi voilà comment définir vos modules :
 
@@ -234,7 +234,7 @@ Comme vu précédemment, une fois vos modules définis, vous devez y accéder po
 
 [Retour au sommaire](#sommaire)
 
-##Gestion des dépendances
+## Gestion des dépendances
 
 Dans un but de minifier les fichiers par la suite, nous avons besoin de gérer correctement toutes les dépendances et imports. Il y a un sens d'écriture des différents modules à respecter : en premier lieu, les dépendances native d'Angular, ensuite les dépendances tierces et finir avec nos composants.
 
@@ -253,9 +253,9 @@ function InvoicesListController($q, $timeout, Socket, InvoicesService) {
 
 [Retour au sommaire](#sommaire)
 
-##Controllers
+## Controllers
 
-####Nommage
+#### Nommage
 
 Les noms de "controllers", à l'instar d'autres composants, devront être écrits en UpperCamelCase et finir par "Controller" à la fin, voici quelques exemples simples :
 
@@ -266,7 +266,7 @@ EventUpdateController
 ```
 Nommez vos composants Angular de la même manière que vos constructeurs (voir ci-après).
 
-####"Controller As"
+#### "Controller As"
 L'un des premiers points extrêmement important à aborder, la syntaxe "**controllerAs**" permet d'orienter le code du "controller" à la manière d'une Classe classique via un réel Constructeur. Du coup, nous pouvons utiliser ```this``` dans les "controllers".
 
 Elle permet également de se passer du ```$scope``` qui reste finalement un anti-pattern et de l'accès aux différents "controllers" parents dans les vues à l'aide du "." des objets Javascript. Exemple : ```{{list.count}}```.
@@ -280,13 +280,13 @@ Pour retrouver et utiliser efficacement les controllers, pensez à instancier un
 <div ng-controller="InvoicesListController as list">...</div>
 ```
 
-####Système View-model
+#### Système View-model
 L'accès au ```this``` dans le "controller" permet d'orienter le développement objet. Cependant la limitation Javascript avec la variable ```this``` nous bride vis-à-vis de l'utilisation dans des contextes particulier (méthode ou callback). Pour contrer cela, il suffit simplement d'instancier l'objet courant dans une variable et d'éviter ```.bind()``` d'Angular :
 ```javascript
 var self = this;
 ```
 
-####Visibilité des méthodes et attributs
+#### Visibilité des méthodes et attributs
 A travers le système mis en place, nous avons orienté les "controllers" vers une démarche Orienté Objet à travers leur constructeur. Du coup, nous allons pouvoir utiliser le principe de visibilité des variables, attributs, méthodes et fonctions. Voyons rapidement comment ça fonctionne dans les controllers :
 
 ```javascript
@@ -326,7 +326,7 @@ function InvoicesListController(InvoicesService) {
 }
 ```
 
-####Délégation de la logique métier aux services
+#### Délégation de la logique métier aux services
 
 Attaquons-nous désormais à la logique métier et données (dite business) de votre "controller". Si vous avez besoin d'utiliser des données qui sont amenées à évoluer etc, n'écrivez rien en rapport avec celle-ci dans vos "controllers" !
 
@@ -335,19 +335,19 @@ L'idée est de séparer vos données et méthodes liées à celles-ci dans un se
 A conforter que cela permet de garder le "controller" propre et chaque composant possède du coup une [responsabilité unique](#principe-de-responsabilite-unique).
 
 
-####Logique graphique
+#### Logique graphique
 
 A contrario, il ne faut pas tout mettre dans les services non plus. Tout ce qui touche au "controller", c'est-à-dire que tous les attributs et méthodes que vous allez utiliser dans votre vue est indispensable et indissociable de votre "controller".
 
 Evitez au maximum les méthodes abstraites, il se peut cependant que certaines de vos méthodes ou attributs aient besoin d'être privées, pensez alors à ce que nous avons dit sur la [visibilité des attributs et méthodes](#visibilite-des-methodes-et-attributs).
 
-####Pas de manipulation du DOM
+#### Pas de manipulation du DOM
 
 Voici une règle simple. Vous ne devez, sous aucun prétexte, accéder au DOM dans votre "controller" à l'aide de jqLite ou autre ! Si vous pensez devoir le faire, c'est que vous avez besoin d'une **directive**. 
 
 **Aucune manipulation du DOM dans un "controller" est l'une des règles d'or !**
 
-####Responsabilité
+#### Responsabilité
 
 Il faut garder vos "controllers" dédiés uniquement à une vue et essayer de ne pas les réutiliser dans d'autres vues. Si vous en ressentez le besoin, décalez votre logique dans une "factory" et laissez le "controller" simple, propre et uniquement dédié à ce qu'il doit faire : gérer sa propre vue.
 
@@ -357,11 +357,11 @@ Il faut garder vos "controllers" dédiés uniquement à une vue et essayer de ne
 
 Les directives sont là pour les modifications avancées du DOM. Si vous avez besoin de faire des modifications simples etc, pensez en priorité au ```ngHide```et ```ngShow```que propose Angular ou à des animations CSS. Les modifications du DOM sont difficiles à tester, autant en faire le moins possible.
 
-####Responsabilité unique
+#### Responsabilité unique
 
 Comme tout autre composant, les "directives" ne doivent remplir qu'une mission et une seule. Elles sont donc censées être écrite dans un fichier séparé à chaque fois. Cependant si un controller est nécessaire, il est possible de le faire dans ce même fichier.
 
-####Restriction des déclarations
+#### Restriction des déclarations
 Par simplicité, nous n'utiliseront pas l'instanciation de "directives" via la possibilité offerte par les classes. En d'autres termes, utilisez uniquement ```restrict: 'A'```, ```restrict: 'E'``` ou```restrict: 'AE'``` au maximum.
 
 Du coup, nous les utilisons uniquement dans les vues de cette manière :
@@ -371,7 +371,7 @@ Du coup, nous les utilisons uniquement dans les vues de cette manière :
 <div my-directive></div>
 ```
 
-####Template
+#### Template
 
 Il faut privilégier les templates externes, exportez vos fichiers html en dehors des fichiers directives.
 
@@ -391,7 +391,55 @@ function myDirective() {
 }
 ```
 
-####Nommage & Ecriture
+Accessoirement si votre template est trop large, préférez créer un template externe que vous importerez via l'option `templateUrl`, appel HTTP que l'on pourra optimiser par la suite avec `$templateCache`.
+
+#### "controllerAs"
+
+Au même titre que pour les controllers directement, les directives intègrent le système du ControllerAs pour éviter le vilain `$scope` si cher à Angular.
+
+```javascript
+function myDirective() {
+
+	return {
+		restrict: 'E',
+		template: '<span>{{ctrl.hello}}</span>',
+		controllerAs: 'ctrl',
+		controller: function() {
+			this.hello = 'world';
+		}
+	};
+
+}
+```
+
+#### "bindToController"
+
+Apparu avec Angular 1.3, cette option permet de faire passer directement les variables du scope de la directive au controller. De cette manière, vous allez pouvoir accéder aux variables sans initialiser la variable `$scope` dans votre controller, voyez ainsi :
+
+```javascript
+function myDirective() {
+
+	return {
+		restrict: 'E',
+		scope: {
+			myScopeParam: '='
+		},
+		bindToController: true, // <-- CE QUI NOUS INTERESSE ICI
+		template: '<span>{{ctrl.hello}}</span>',
+		controllerAs: 'ctrl',
+		controller: function() {
+			this.hello = this.myScopeParam;
+		}
+	};
+
+}
+```
+
+Cette simplification est la bienvenue et mérite amplement le passage à une version d'Angular supérieure à 1.3.
+
+**Attention dans la version 1.4, le `bindToController` change encore, vous pouvez personnaliser les éléments à bind.**
+
+#### Nommage & Ecriture
 
 N'utilisez jamais le préfixe ```ng-*```,  préférez ```zl-*```. A savoir également que le nom doit être écrit simplement en ```camelCase```. Voici un exemple complet :
 
@@ -414,7 +462,7 @@ function DragUploadDirective() {
 		link: link
 	};
 	
-	function link(scope, element, attributes, controller) {
+	function link($scope, $element, $attributes, $controller) {
 		// Faire les manipulations du DOM ici uniquement !
 	}
 	
@@ -423,13 +471,13 @@ function DragUploadDirective() {
 
 [Retour au sommaire](#sommaire)
 
-##Services, Factories et Models
+## Services, Factories et Models
 
 La distinction entre "factory", "service" et "provider" est très petite. Sans rentrer dans le détails, finalement chacune de ces formes est un Service (cf. documentation Angular : service > new factory > new provider). Nous allons nous permettre de laisser tomber le "provider" pour se concentrer uniquement sur les deux premières formes.
 
 Les services en général contiennent l'ensemble de la logique métier et données.
 
-####Utilisation des services
+#### Utilisation des services
 
 Les services seront principalement dédiés et amenés à discuter avec les "controllers", dans un esprit de responsabilité unique encore une fois.
 
@@ -437,15 +485,15 @@ Les services se trouvent dans chacun des sous-dossiers de routes quand ils conce
 
 Gardez à l'esprit l'histoire des composants et des modules, n'utilisez pas un service qui n'est pas dans son "range".
 
-####Utilisation des "factories"
+#### Utilisation des "factories"
 
 Les "factories" peuvent être "instanciées" (attention, pour ce que nous venons de dire, nous pouvons nous faire lyncher). En soit une factory est également un "singleton" mais elle peut retourner un constructeur (ou plusieurs d'ailleurs) qui lui sera instanciable !
 
 C'est pourquoi, nous utilisons les "factories" comme des "models". Nous essayons de nous rapprocher du système de "beans" sur Java. Ces "beans" sont créés et contiennent les données auparavant, nous ne traitons donc jamais les données en brut comme elles arrivent dans un "controller" ou dans une vue, mais bien au niveau des "services" et "models".
 
-####Nommage et écriture
+#### Nommage et écriture
 
-#####Service
+##### Service
 
 Dans un premier temps, regardons ensemble, à travers un exemple, à quoi pourrait ressembler un service pour gérer les factures sur notre page qui les liste simplement.
 
@@ -476,7 +524,7 @@ Plusieurs points découlent de cet exemple. Premièrement, le nom est également
 
 Il utilise également le même principe que le controller pour la visibilité de ses attributs et méthodes à travers ```_.extends``` que propose **lodash**.
 
-#####Model
+##### Model
 
 Voyons ensuite comment se comporte un "model" :
 
@@ -514,7 +562,7 @@ Le "model" n'est pas très compliqué en soit. C'est une "factory" qui renvoie u
 
 A noter également que le constructeur prend un objet en paramètre qui correspondrait à une liste de propriétés qui lui serait simplement passée en paramètre. Cela évite dans certains cas, d'avoir des listes de ```null``` lors de l'instanciation de certains objets jusqu'à arriver au paramètre que l'on connait. Le but étant d'éviter ceci : ```new Invoice(123, null, null, null, 1023.42, 'DUTRONC', null, null, true);```.
 
-####Contraites et utilités
+#### Contraites et utilités
 
 Après avoir déjà expliqué comment fonctionnent les "factories" ("models") et les "services", nous allons juste simplifier ce qui a été dit :
 
@@ -524,7 +572,7 @@ Après avoir déjà expliqué comment fonctionnent les "factories" ("models") et
 
 [Retour au sommaire](#sommaire)
 
-##Routes
+## Routes
 
 Une route correspond à une page, donc théoriquement à un affichage différent. Il y a d'autres composants, directives qui seront alors à l'écran. Il faut alors, par route, créer un fichier de routing qui se chargera de configurer correctement le ```$stateProvider``` d'AngularUI Router. Voici un exemple :
 
@@ -583,18 +631,18 @@ Une route correspond à une page, donc théoriquement à un affichage différent
 ```
 Nous allons redéfinir et expliquer plusieurs points.
 
-####State & Routing
+#### State & Routing
 Le "State" se découpe à l'image des modules (utilisation des "." comme séparateur) puisqu'ils peuvent être imbriqués et fonctionner de manière abstraite. La documentation d'AngularUI Router est assez bien faite quant à l'utilisation des states et des routes ([voir plus de détails](https://github.com/angular-ui/ui-router/wiki/URL-Routing)).
 
-####Vues imbriquées
+#### Vues imbriquées
 La clé ```views``` contient finalement la liste des informations des différentes vues qui seront affichées sur la page en question.
 
 **NB** : Il faut que l'ensemble des vues définies sur la page soit présent sur votre configuration de routes.
 
-####"Controller As"
+#### "Controller As"
 Comme décrit auparavant, on utilise ici la nomenclature ```controllerAs```. Encore une fois, choisissez intelligemment le nom de vos "controllers".
 
-####Resolver & Controller
+#### Resolver & Controller
 Le "resolver" est exécuté avant l'instanciation du "controller". Il peut y avoir plusieurs "resolvers" d'affilée et pour la plupart sont des promises afin de gérer le côté asynchrone des chargements du pré-affichage. Les résultats des dits "resolvers" sont ensuite passés comme paramètres de votre "controller".
 
 ```javascript
@@ -623,7 +671,7 @@ function InvoicesListController(invoices) {
 [Retour au sommaire](#sommaire)
 
 
-##Encapsuleurs natifs
+## Encapsuleurs natifs
 
 Angular propose une série d'helpers, il faut absolument les privilégier :
 
@@ -631,42 +679,42 @@ Angular propose une série d'helpers, il faut absolument les privilégier :
  - **$interval** au lieu de setInterval
  - **$window** au lieu de window
  - **$document** au lieu de document
- - **$http** au lieu de $.ajax
+ - **$http** au lieu de `$.ajax`
  - **$q (promises)** au lieu des callbacks
 
 [Retour au sommaire](#sommaire)
 
-##Exceptions
+## Exceptions
+
+Chez 90Tech, nous gérons nos exceptions et nos erreurs à l'aide de [TrackJS](https://trackjs.com/).
+
+[Retour au sommaire](#sommaire)
+
+## Constantes
 
 ...
 
 [Retour au sommaire](#sommaire)
 
-##Constantes
+## Commentaires
 
 ...
 
 [Retour au sommaire](#sommaire)
 
-##Commentaires
+## JSHint
 
 ...
 
 [Retour au sommaire](#sommaire)
 
-##JSHint
+## Gulp et déploiement
 
 ...
 
 [Retour au sommaire](#sommaire)
 
-##Gulp et déploiement
-
-...
-
-[Retour au sommaire](#sommaire)
-
-##Contributions
+## Contributions
 
 ...
 
